@@ -1,7 +1,9 @@
+import io
+
 candidatos = {}
 
-# siglas = ['AC','AL','AP','AM','BA','CE','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','RJ','RN','RS','RO','RR','SC','SP','SE','TO']; 	
-siglas = ['AC','AL','AP','AM','BA','CE','ES','GO']
+#siglas = ['AC','AL','AP','AM','BA','CE','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','RJ','RN','RS','RO','RR','SC','SP','SE','TO']; 	
+siglas = ['GO']; 	
 
 def add_bens(key, value):
 	if not key in candidatos: 
@@ -16,7 +18,7 @@ def create_row(codigo, candidato):
 
 #primeira parte
 for sigla in siglas: 
-	arq = open('consulta_cand_2016/consulta_cand_2016_'+sigla+'.txt', 'r')
+	arq = io.open('consulta_cand_2016/consulta_cand_2016_'+sigla+'.txt', 'r')
 	texto = arq.readlines()
 
 	# coluna 5 estado; 
@@ -29,19 +31,18 @@ for sigla in siglas:
 	# coluna 30 sexo; 
 	# coluna 32 educacao; 
 	# coluna 36 raca; 
+	print('running..'+sigla+'\n')
 
 	for linha in texto:
 		temp = linha.split(';')
-
 		# limpando sujeira
 		temp = [ x.replace('"', '') for x in temp ]
-		
 		candidato = {
+			'codigo'  : temp[11], 
 			'estado'  : temp[5], 
 			'cidade'  : temp[7], 
 			'cargo'   : temp[9], 
 			'nome'    : temp[10], 
-			'codigo'  : temp[11], 
 			'ocupacao': temp[25],
 			'partido' : temp[18], 
 			'sexo'    : temp[30], 
@@ -49,15 +50,13 @@ for sigla in siglas:
 			'raca'    : temp[36], 
 			'bens'    : 0
 		}
-
 		create_row(candidato['codigo'], candidato); 
-
-		print('running..\n')
 	
+	arq.close()
 
 # segunda etapa
 for sigla in siglas:
-	arq = open('bem_candidato_2016/bem_candidato_2016_'+sigla+'.txt', 'r')
+	arq = io.open('bem_candidato_2016/bem_candidato_2016_'+sigla+'.txt', 'r')
 	texto = arq.readlines()
 	
 	# coluna 9 é o valor do bem; 
@@ -74,7 +73,7 @@ for sigla in siglas:
 
 		add_bens(codigo_candidato, valor_bem)
 
-		print('running..\n')
+	print('running..'+sigla+'\n')
 
 	arq.close()
 
@@ -82,15 +81,17 @@ for sigla in siglas:
 milionarios = [ candidatos[x] for x in candidatos if candidatos[x]['bens'] >= 1000000 ]
 
 arq = open('output/milionarios.txt','w+')
-for milionario in milionarios: 
-	arq.write(str(milionario)+'\n')
+for m in milionarios: 
+	row  = m['codigo']+';'+m['estado']+';'+m['cidade']+';'+m['cargo']+';'+m['nome']+';'+m['ocupacao']+';'+m['partido']+';'+m['sexo']+';'+m['educacao']+';'+m['raca']+';'+str(int(m['bens']))+'\n'
+	arq.write(row)
 
 arq.close()
 
 
 arq = open('output/todos.txt','w+')
 for codigo in candidatos : 
-	arq.write(str(candidatos[codigo])+'\n')
+	row  = candidatos[codigo]['codigo']+';'+candidatos[codigo]['estado']+';'+candidatos[codigo]['cidade']+';'+candidatos[codigo]['cargo']+';'+candidatos[codigo]['nome']+';'+candidatos[codigo]['ocupacao']+';'+candidatos[codigo]['partido']+';'+candidatos[codigo]['sexo']+';'+candidatos[codigo]['educacao']+';'+candidatos[codigo]['raca']+';'+str(int(candidatos[codigo]['bens']))+'\n'
+	arq.write(row)
 
 arq.close()
 # print('chave valor')
